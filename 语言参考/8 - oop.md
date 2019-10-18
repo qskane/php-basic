@@ -224,6 +224,12 @@ var_dump(is_callable($obj)); // bool(true)
 - parent::staticFunc() / self::staticFunc() staticFunc() 内的 static 会被后期静态绑定，指向继承末端的class，即调用最初来源方。
 - self 关键字指向代码所在的class。
 
+## 对象和引用
 
+- PHP 的引用是别名，就是两个不同的变量名字指向相同的内容。
+- 在 PHP 5，一个对象变量已经不再保存整个对象的值。只是保存一个标识符来访问真正的对象内容。
 
+## 对象序列化
 
+- serialize() unserialize()
+- __sleep() __wakeup()
