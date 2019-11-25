@@ -86,4 +86,55 @@
  CREATE TABLE mydb.interval (begin INT, end INT);
 ``` 
 
-to be continued https://dev.mysql.com/doc/refman/5.6/en/user-variables.html
+## 自定义变量
+
+```
+SET @var_name = expr [, @var_name = expr] ...
+```
+
+- 合法的组成部分：`A-Z` `.` `_` `$`, 若包含于字符串或标识符中时，则可以使用其他字符： @'my-var', @"my-var", @`my-var`。
+- 使用 `=` 或 `:=` 符号赋值。
+- 赋值变量特定于SESSION有效。
+- 合法的赋值类型：整数，十进制，浮点数，二进制或非二进制字符串，NULL；其他类型被转换为此类型中的一种
+- 不要再同一条语句中同时设置和读取值。
+- 每个SELECT表达式仅在发送到客户端时才进行求值，在HAVING，GROUP BY或ORDER BY中取值不会按预期工作。
+- 不能直接在SQL语句中直接用作标识符或标识符的一部分，但可以组装为字符串后执行SQL。
+  ```mysql
+    SET @col = "c1";
+    SELECT `@col` FROM t; -- c1 列存在于表t中
+    -- ERROR 1054 (42S22): Unknown column '@col' in 'field list'
+    
+    -- 但是可以用作构造字符串用于执行SQL
+    SET @s = CONCAT("SELECT ", @c, " FROM t");
+    PREPARE stmt FROM @s;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+  ```
+
+## 表达式
+
+- 列表 https://dev.mysql.com/doc/refman/5.6/en/expressions.html
+- 时间间隔 INTERVAL expr unit，unix始终为单数格式：2 day，3 year...
+  date + INTERVAL expr unit
+  date - INTERVAL expr unit
+- `EXTRACT(YEAR FROM '2019-07-01')`
+- ```mysql
+	 CREATE EVENT myevent
+	  ON SCHEDULE AT CURRENT_TIMESTAMP + INTERVAL 1 HOUR
+	  DO
+		UPDATE myschema.mytable SET mycol = mycol + 1;
+  ```
+- 超出月份最大日期转换为最大值：`SELECT DATE_ADD('2019-01-30', INTERVAL 1 MONTH); -- '2019-02-28'`
+- 错误日期运算后为NULL， `SELECT '2005-03-32' + INTERVAL 1 MONTH; -- NULL` 
+  
+## 注释
+
+- `#`
+- `-- ` 其后必须包含一个空格或制表符或换行符等
+- `/* */`
+- `CREATE TABLE t1(a INT, KEY (a)) /*!50110 KEY_BLOCK_SIZE=1024 */;` 指定MYSQL版本高于5.1.10时才执行注释中的代码。
+
+  
+
+
+
