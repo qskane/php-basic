@@ -82,11 +82,13 @@ instanceof
 不可以用来检测常量
 
 ```php
+// 判断父类
 class ParentClass{}
 class MyClass extends ParentClass{}
 $a = new MyClass;
 var_dump($a instanceof ParentClass);  // true
 
+// 字符串变量表达
 $b = 'MyClass';
 var_dump($a instanceof $b); // $b is an object of class MyClass , true
 ```

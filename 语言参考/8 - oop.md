@@ -2,7 +2,7 @@
 
 - 每个变量都持有对象的引用。除非用clone显式赋值。
 - 类内部可使用 new self 和 new parent 创建实例。
-- 属性名与方法名可相同。若熟悉名被赋值为一个匿名函数，则调用时：($obj->bar)();
+- 属性名与方法名可相同。若属性名被赋值为一个匿名函数，则调用时：($obj->bar)();
 - ClassName::class 你可以获取一个字符串，包含了类 ClassName 的完全限定名称。发生于解析阶段，尚未自动加载。
 
 **php 与对象实例之间有一层句柄，通过句柄再连接到对象实例，而不是直接引用连接，所以实例变量赋值新变量后设为null，新变量仍然有值。**
@@ -17,9 +17,16 @@ $reference =& $objectVar;
 $assignment = $objectVar
 
 $objectVar = null;
-print_r($objectVar);
-print_r($reference);
-print_r($assignment);
+print_r($objectVar);  // NULL
+print_r($reference);  // NULL
+print_r($assignment); 
+/*
+object(ObjectA)#1 (1) {
+   ["foo"]=>
+   string(3) "bar"
+ }
+*/
+
 
 //
 // $objectVar --->+---------+
@@ -59,7 +66,7 @@ print_r($assignment);
 
 
 ## 范围解析操作符 （::）
-static , const, static function 可同名
+static , const, static function 三者名字相同
 ```php
 class A {
 

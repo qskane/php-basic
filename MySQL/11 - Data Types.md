@@ -8,6 +8,19 @@ MySQL支持的数据类型
 
 ## 数值类型
 ZEROFILL 会自动添加UNSIGNED，自动在数值前面补0至目标长度。
+确切的数值数据类型  INT(INTEGER)， SMALLINT， DECIMAL(DEC、FIXED)和 NUMERIC
+近似数值数据类类型 FLOAT， REAL，和 DOUBLE(DOUBLE PRECISION)
+默认情况下整数值之间的减法（其中一个类型为UNSIGNED ）会产生无符号结果。如果结果为负则将导致错误。`SELECT CAST(0 AS UNSIGNED) - 1;`
+### DECIMAL，NUMERIC
+存储精确的数值数据，可以用于存储货币
+DECIMAL以二进制格式存储值
+NUMERIC是DECIMAL的相同实现
+
+
+
+
+
+
 
 - BIT[(M)] 位值类型  
   M表示位数，从1到64。如果M省略，默认值为1。
@@ -51,6 +64,20 @@ ZEROFILL 会自动添加UNSIGNED，自动在数值前面补0至目标长度。
 	- REAL[(M,D)] [UNSIGNED] [ZEROFILL]
 
 ## 日期和时间
+
+时间自动更新：
+- 5.6 以上TIMESTAMP/DATETIME 支持时间自动更新
+- 当使用`DEFAULT CURRENT_TIMESTAMP` 或 `ON UPDATE CURRENT_TIMESTAMP` 时表中只能有一个 `timestamp` 类型的列，
+  即使其他列不需要自动更新。
+- `my_col TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`。
+- INSERT NULL 到 timestamp 类型的列时,除非指定可为NULL，否则会自动更新为 `CURRENT_TIMESTAMP`。
+  所以即使定义时指定了NOT NULL仍然可以插入NULL值，被自动转换。
+  DATETIME列不会主动转换NULL为CURRENT_TIMESTAMP，仅当不忽略该列时DEFAULT CURRENT_TIMESTAMP才生效。 
+  
+  // FIXME https://dev.mysql.com/doc/refman/5.6/en/timestamp-initialization.html
+  
+
+时间类型
 - DATE
   '1000-01-01'到 '9999-12-31'
 - DATETIME[(fsp)]
@@ -61,6 +88,7 @@ ZEROFILL 会自动添加UNSIGNED，自动在数值前面补0至目标长度。
   '-838:59:59.000000' 至'838:59:59.000000'
 - YEAR[(2|4)]
   YEAR(4) 1901到 2155或0000
+  YEAR(2) 00 到 99，0-69 转换为20xx，70-99转换为19xx
   
 SUM()和 AVG()聚合函数不能在时间值上生效，但可以通过转换后使用：
 ```mysql

@@ -1,4 +1,13 @@
 <?php
-$fruits = ["d" => "lemon", "a" => "orange", "b" => "banana", "c" => "apple"];
+Class ObjectA{
+    public $foo="bar";
+};
 
-var_dump($fruits);
+$objectVar = new ObjectA();
+$reference =& $objectVar;
+$assignment = $objectVar;
+
+$objectVar = null;
+var_dump($objectVar);
+var_dump($reference);
+var_dump($assignment);
