@@ -294,10 +294,10 @@ TINYTEXT，TEXT， MEDIUMTEXT，和LONGTEXT
   - 使用2字节的前缀存储该值中的字节数
   - 若M被指定，则MySQL会根据该值创建足够容纳M个字节的最小的TEXT类型。
 - MEDIUMTEXT [CHARACTER SET charset_name] [COLLATE collation_name]
-  - 最大长度为16,777,215（2 24 − 1）个字符
+  - 最大长度为16,777,215（2**24 − 1）个字符
   - 使用3字节的前缀存储该值中的字节数
 - LONGTEXT [CHARACTER SET charset_name] [COLLATE collation_name]
-  - 最大长度为4,294,967,295或4GB（2 32 − 1）字符
+  - 最大长度为4,294,967,295或4GB（2**32 − 1）字符
   - 使用4字节的前缀存储该值中的字节数
   - 有效最大长度 取决于客户端/服务器协议中配置的最大数据包大小和可用内存
   
@@ -359,3 +359,159 @@ https://dev.mysql.com/doc/refman/5.6/en/spatial-types.html
     因为最大可能长度255个字符 * 2字节每字符 = 510字节，超出1个字节存长度时的最大值255字节，所以需要2个字节保存长度。
 - VARCHAR列最大单字节字符集字符数 2**32-1，且在同表各列间共享长度。若使用3字节字符集则最多 (2**32-1)/3个字符。
 - innoDB中，当CHAR(255)使用超过3字节的字符集时，会改变为VARCHAR类型存储。
+
+
+## 全文搜索功能
+
+[https://dev.mysql.com/doc/refman/5.6/en/fulltext-search.html](https://dev.mysql.com/doc/refman/5.6/en/fulltext-search.html)
+
+```mysql
+
+CREATE TABLE articles (
+          id INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+          title VARCHAR(200),
+          body TEXT,
+          FULLTEXT (title,body)  -- 全文索引
+        ) ENGINE=InnoDB;
+        
+SELECT * FROM articles
+        WHERE MATCH (title,body)
+        AGAINST ('database' IN NATURAL LANGUAGE MODE);
+```
+
+## 强制转换函数和运算符
+BINARY
+COVERT
+CAST
+```
+转换字符集
+CONVERT(expr USING transcoding_name)
+CAST(expr USING transcoding_name)
+
+CONVERT(string, CHAR[(N)] CHARACTER SET charset_name)
+CAST(string AS CHAR[(N)] CHARACTER SET charset_name)
+
+装换数据类型
+CAST(1 - 2 AS UNSIGNED)
+
+转为二进制字符串
+_binary 'a' 
+BINARY expr
+CAST(expr AS BINARY)
+CONVERT(expr USING BINARY)
+```
+
+## XML函数
+[https://dev.mysql.com/doc/refman/5.6/en/xml-functions.html](https://dev.mysql.com/doc/refman/5.6/en/xml-functions.html)
+
+ExtractValue()	使用XPath表示法从XML字符串中提取值
+UpdateXML()	返回替换的XML片段
+
+## 位函数和运算符
+[https://dev.mysql.com/doc/refman/5.6/en/bit-functions.html](https://dev.mysql.com/doc/refman/5.6/en/bit-functions.html)
+
+## 加密和压缩功能
+[https://dev.mysql.com/doc/refman/5.6/en/encryption-functions.html](https://dev.mysql.com/doc/refman/5.6/en/encryption-functions.html)
+## 锁功能
+
+GET_LOCK()	    获取命名锁
+IS_FREE_LOCK()	命名锁是否可用
+IS_USED_LOCK()	是否使用了命名锁；如果为true，则返回连接标识符
+RELEASE_LOCK()	释放命名锁
+
+## 信息功能
+[https://dev.mysql.com/doc/refman/5.6/en/information-functions.html](https://dev.mysql.com/doc/refman/5.6/en/information-functions.html)
+
+BENCHMARK()	重复执行一个表达式
+CHARSET()	返回参数的字符集
+COERCIBILITY()	返回字符串参数的排序规则强制性值
+COLLATION()	返回字符串参数的排序规则
+CONNECTION_ID()	返回连接的连接ID（线程ID）
+CURRENT_USER()， CURRENT_USER	经过身份验证的用户名和主机名
+DATABASE() / SCHEMA()	返回默认（当前）数据库名称
+FOUND_ROWS()	对于带有LIMIT子句的SELECT，如果没有LIMIT子句，则将返回的行数
+LAST_INSERT_ID()	最后一个INSERT的AUTOINCREMENT列的值
+ROW_COUNT()	更新的行数
+USER() / SYSTEM_USER() / SESSION_USER()	客户端提供的用户名和主机名
+VERSION()	返回指示MySQL服务器版本的字符串
+
+## 空间分析功能
+[https://dev.mysql.com/doc/refman/5.6/en/spatial-analysis-functions.html](https://dev.mysql.com/doc/refman/5.6/en/spatial-analysis-functions.html)
+
+
+## 聚合（GROUP BY）函数
+
+AVG()	返回参数的平均值
+BIT_AND()	按位返回AND
+BIT_OR()	按位返回或
+BIT_XOR()	返回按位异或
+COUNT()	返回返回的行数的计数
+COUNT(DISTINCT)	返回多个不同值的计数
+GROUP_CONCAT()	返回串联的字符串
+MAX()	返回最大值
+MIN()	返回最小值
+STD()	返回人口标准差
+STDDEV()	返回人口标准差
+STDDEV_POP()	返回人口标准差
+STDDEV_SAMP()	返回样品标准偏差
+SUM()	返回总和
+VAR_POP()	返回总体标准方差
+VAR_SAMP()	返回样本方差
+VARIANCE()	返回总体标准方差
+
+组函数将忽略 NULL值
+
+
+### GROUP BY ROLLUP
+- 会对 GROUP BY之后的结果再进行一次聚合
+- ROLLUP和ORDER BY在MySQL中是互斥，若要再次排序需要使用派生表
+```mysql
+SELECT * FROM
+	(
+		SELECT year, SUM(profit) AS profit
+		FROM sales GROUP BY year WITH ROLLUP
+	) AS dt
+ORDER BY year DESC;
+```
+- LIMIT 限制返回的结果数量可能导致ROLLUP列未在返回的结果集中
+
+### GROUP BY的MySQL处理
+
+- `c.name` 未在GROUP BY子句中指定，导致c.name会在结果集中任意被选择，ORDER BY也无法影响选择的值。
+```mysql
+SELECT o.custid, c.name, MAX(o.payment)
+  FROM orders AS o, customers AS c
+  WHERE o.custid = c.custid
+  GROUP BY o.custid;
+```
+- 聚合函数 `MAX()`、`MIN()`...不能在未使用GROUP BY子句的语句中使用。
+-  
+```mysql
+SELECT name, COUNT(name) FROM orders
+  GROUP BY name
+  HAVING COUNT(name) = 1;
+```
+
+## 其他函数
+[https://dev.mysql.com/doc/refman/5.6/en/miscellaneous-functions.html](https://dev.mysql.com/doc/refman/5.6/en/miscellaneous-functions.html)
+
+
+- DEFAULT(col_name)	返回表列的默认值
+	- `UPDATE t SET i = DEFAULT(i)+1 WHERE id < 100;`若无DEFAULT值将报错。
+- FORMAT(X,D)
+	- 将数字X格式化为'#,###,###.##'，将其舍入到 D小数位
+- SLEEP(duration_seconds)	
+  睡眠（暂停）duration参数给出的秒数 ，然后返回0。如果SLEEP()被中断，则返回1。
+  持续时间可能有一个小数部分。
+- IS_IPV4(expr)
+	- 如果参数是指定为字符串的有效IPv4地址，则返回1，否则返回0。
+- UUID()	返回通用唯一标识符（UUID）
+  - 不是绝对唯一，但是重复可能性很小。
+  - 示例值：`17216701-14e5-11ea-993b-b42e995232f9`
+- UUID_SHORT()	返回一个整数通用标识符
+  - 示例值：`26428741265653760`
+- VALUES()	定义在INSERT期间要使用的值
+  `INSERT INTO table (a,b,c) VALUES (1,2,3),(4,5,6) ON DUPLICATE KEY UPDATE c=VALUES(a)+VALUES(b);`
+  
+## 精确数学
+FIXME https://dev.mysql.com/doc/refman/5.6/en/precision-math.html
